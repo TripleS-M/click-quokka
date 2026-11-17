@@ -29,7 +29,8 @@ try {
             New-ItemProperty -LiteralPath $key -Name 'MultiSelectModel' -Value 'Single' -PropertyType String -Force | Out-Null
             $commandKey = Join-Path $key 'command'
             New-Item -Path $commandKey -Force | Out-Null
-            $command = '"{0}" -NoProfile -ExecutionPolicy Bypass -File "{1}" -Action {2} -Path "%1"' -f $powershell, $launcher, $verb[3]
+            $windowOption = if ($verb[3] -eq 'Scan') { ' -WindowStyle Hidden' } else { '' }
+            $command = '"{0}" -NoProfile{3} -ExecutionPolicy Bypass -File "{1}" -Action {2} -Path "%1"' -f $powershell, $launcher, $verb[3], $windowOption
             Set-Item -LiteralPath $commandKey -Value $command
         }
         Write-Host 'Click Quokka actions installed for this user. Right-click a PDF or TXT file and choose Show more options.'
