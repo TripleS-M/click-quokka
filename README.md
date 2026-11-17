@@ -69,4 +69,5 @@ Uninstall preserves the saved paths, database, and staged sessions. Neither scri
 - Not run: real ClamAV clean PDF, EICAR, timeout, unreadable file, Unicode and spaces. ClamAV was not found in the environment during initial inspection.
 - Not run: real Sandbox launch, offline viewer rendering, read-only mapped-folder writes, networking and clipboard restrictions, and fresh-session behavior. Sandbox and the portable viewer were not found during initial inspection.
 - Passed: both per-user PDF verb names, commands, and single-selection settings were verified in the registry.
+- Passed: the Explorer scan launcher scanned a temporary PDF with a space in its path and returned `No threats detected`.
 - Not run: interactive Explorer selection and uninstall/reinstall verification.
