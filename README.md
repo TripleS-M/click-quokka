@@ -63,11 +63,26 @@ Uninstall preserves the saved paths, database, and staged sessions. Neither scri
 
 ## Verification status
 
-- Passed: missing input and missing scanner produce `Scan failed` in Windows PowerShell 5.1.
-- Passed: ClamAV 1.5.4 scanned the project README with a downloaded signature database and returned `No threats detected`.
-- Passed: isolation rejects a missing file and a non-PDF, and reports unavailable Sandbox for a PDF-shaped test file; both new scripts parse in Windows PowerShell 5.1.
-- Not run: real ClamAV clean PDF, EICAR, timeout, unreadable file, Unicode and spaces. ClamAV was not found in the environment during initial inspection.
-- Not run: real Sandbox launch, offline viewer rendering, read-only mapped-folder writes, networking and clipboard restrictions, and fresh-session behavior. Sandbox and the portable viewer were not found during initial inspection.
-- Passed: both per-user PDF verb names, commands, and single-selection settings were verified in the registry.
-- Passed: the Explorer scan launcher scanned a temporary PDF with a space in its path and returned `No threats detected`.
-- Not run: interactive Explorer selection and uninstall/reinstall verification.
+The following records checks performed on Windows PowerShell 5.1 with ClamAV 1.5.4. Results from simulated signatures are identified separately from EICAR.
+
+| Check | Status | Evidence or remaining work |
+| --- | --- | --- |
+| Clean PDF | Passed | Real ClamAV returned `No threats detected` for `examples\harmless.pdf` and another PDF; the latter's SHA-256 hash was unchanged. |
+| Threat result | Passed with custom signature | Real ClamAV and Click Quokka returned `Threat detected: ClickQuokka.Test.UNOFFICIAL` for a harmless text file and a temporary custom database. This is not an EICAR result. |
+| EICAR | Not verified | The user made an EICAR file, but its Click Quokka result was not provided. Defender may intercept the file first. |
+| Timeout, missing input, missing scanner | Passed | Reported `Scan failed`; timeout returned exit code 2. |
+| Unicode and spaces | Passed | A copied PDF with a Unicode character and spaces in its path returned `No threats detected`. |
+| Unreadable file | Not verified | An attempted locked-file check still returned clean; it did not establish a reliable unreadable-file test. |
+| Explorer uninstall/reinstall | Passed | All three per-user registry verbs were removed and restored; saved scanner and viewer paths were preserved. |
+| Sandbox and Explorer UI | Not verified | Live guest protections, the popup, and interactive menu selection remain to be checked. Computer-use access was unavailable. |
+
+## Demo and remaining interactive checks
+
+1. Right-click `examples\harmless.pdf` and select **Show more options → Scan with Click Quokka**. Expect `No threats detected`; scanning does not open it.
+2. Right-click an accessible EICAR `.txt` file and scan it. Expect `Threat detected` with an EICAR signature. A Defender notification alone does not verify Click Quokka. If Defender removes it before the scan, record the test as blocked.
+3. Right-click the sample PDF and select **Open in Click Quokka Isolation**. In the guest, confirm SumatraPDF displays it while offline. The host launch message alone does not establish that the viewer worked.
+4. In the guest, open PowerShell and try `Set-Content C:\ClickQuokka\write-test.txt test`: it must fail. Check `Get-NetAdapter` and try reaching a known website; no network access should be available. Try copying unique text from the host to the guest and back; neither direction should transfer it. These are runtime checks, not conclusions from the `.wsb` configuration.
+5. In the guest create `C:\Users\WDAGUtilityAccount\Desktop\quokka-marker.txt`, close the Sandbox session, and open the sample again in a new session. The marker must be absent. Then restart Windows before using the cleanup command above.
+6. Check that a missing file and a `.txt` passed to isolated viewing fail clearly. Uninstall the actions, confirm they disappear for both PDF and TXT, reinstall, and confirm the saved dependency paths still work.
+
+Record the Windows build, Sandbox version, viewer version, dates, and outcomes when running these checks. Keep any failed or blocked checks visible rather than presenting them as passed.
