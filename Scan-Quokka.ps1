@@ -7,6 +7,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 try {
+    if (-not $PSBoundParameters.ContainsKey('DatabasePath')) {
+        $projectDatabase = Join-Path $PSScriptRoot '.clamav\database'
+        if (Test-Path -LiteralPath $projectDatabase -PathType Container) { $DatabasePath = $projectDatabase }
+    }
     $item = Get-Item -LiteralPath $Path -Force
     if ($item.PSProvider.Name -ne 'FileSystem' -or $item.PSIsContainer -or $item.FullName.StartsWith('\\')) {
         throw 'Select a local regular file.'
