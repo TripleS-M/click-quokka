@@ -23,7 +23,8 @@ try {
     function Quote-Argument([string]$value) {
         return '"' + [regex]::Replace($value, '(\\*)"', '$1$1\"').TrimEnd('\') + ('\' * ([regex]::Match($value, '\\*$').Length * 2)) + '"'
     }
-    $arguments = @('--stdout')
+    # Without this, ClamAV silently skips files over its size limits and reports them as OK.
+    $arguments = @('--stdout', '--alert-exceeds-max=yes')
     if ($DatabasePath) { $arguments += ('--database=' + (Quote-Argument $DatabasePath)) }
     $arguments += '--'
     $arguments += (Quote-Argument $item.FullName)
@@ -48,6 +49,7 @@ try {
     }
     $output = $stdout.GetAwaiter().GetResult()
     $errors = $stderr.GetAwaiter().GetResult()
+    if ($output -match 'Heuristics\.Limits\.Exceeded') { throw 'The file exceeds scanner limits and was not fully scanned.' }
     if ($process.ExitCode -eq 1) {
         $signature = [regex]::Match($output, '(?m): ([^\r\n]+) FOUND\s*$')
         if ($signature.Success) { Write-Host ("Threat detected: " + $signature.Groups[1].Value) }

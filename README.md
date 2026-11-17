@@ -20,7 +20,7 @@ Set-Content -LiteralPath .\.clamav\freshclam.conf -Value 'DatabaseMirror databas
 & 'C:\Program Files\ClamAV\freshclam.exe' --config-file="$(Resolve-Path .\.clamav\freshclam.conf)" --datadir="$(Resolve-Path .\.clamav\database)"
 ```
 
-The scanner runs as a direct child process rather than through a command shell, and checks the scan summary before reporting a clean result. This keeps filenames as data and prevents a skipped scan from being reported as clean.
+The scanner runs as a direct child process rather than through a command shell, and checks the scan summary before reporting a clean result. This keeps filenames as data and prevents a skipped scan from being reported as clean. Files exceeding ClamAV's size or scan limits (100 MB per file by default) are reported as `Scan failed` rather than clean.
 
 ## Isolated viewing
 
@@ -68,13 +68,18 @@ The following records checks performed on Windows PowerShell 5.1 with ClamAV 1.5
 | Check | Status | Evidence or remaining work |
 | --- | --- | --- |
 | Clean PDF | Passed | Real ClamAV returned `No threats detected` for `examples\harmless.pdf` and another PDF; the latter's SHA-256 hash was unchanged. |
-| Threat result | Passed with custom signature | Real ClamAV and Click Quokka returned `Threat detected: ClickQuokka.Test.UNOFFICIAL` for a harmless text file and a temporary custom database. This is not an EICAR result. |
-| EICAR | Not verified | The user made an EICAR file, but its Click Quokka result was not provided. Defender may intercept the file first. |
+| Threat result | Passed with custom signature | Real ClamAV and Click Quokka returned `Threat detected: ClickQuokka.Test.UNOFFICIAL` for a harmless text file and a temporary custom database. |
+| EICAR | Passed | An EICAR `.txt` returned `Threat detected: Eicar-Test-Signature` (exit 1), both from the command line and in the Explorer popup. Defender did not intercept it on this machine. |
 | Timeout, missing input, missing scanner | Passed | Reported `Scan failed`; timeout returned exit code 2. |
-| Unicode and spaces | Passed | A copied PDF with a Unicode character and spaces in its path returned `No threats detected`. |
-| Unreadable file | Not verified | An attempted locked-file check still returned clean; it did not establish a reliable unreadable-file test. |
+| Unicode and spaces | Passed | PDFs with Unicode characters, spaces, `[ ]` and `$` in their names returned `No threats detected`. |
+| Unreadable file | Passed | A file held open with no sharing and a file with a read-deny ACL each returned `Scan failed` (exit 2). |
+| Oversized file | Passed | A 120 MB PDF (above ClamAV's 100 MB default limit) previously reported clean without being scanned; it now returns `Scan failed: The file exceeds scanner limits and was not fully scanned.` |
+| Explorer scan popup | Passed | The registered command line produced the expected popup for clean, EICAR, oversized, Unicode-named and missing files. It was launched directly, not by clicking the context menu. |
+| Session cleanup | Passed | Refused a current-boot session; `-WhatIf` previewed without deleting; removed a synthetic previous-boot session. |
+| Isolation input checks | Passed | A missing file, a non-PDF extension, and a `.pdf` without a PDF header each failed with `Isolation failed` (exit 1). |
 | Explorer uninstall/reinstall | Passed | All three per-user registry verbs were removed and restored; saved scanner and viewer paths were preserved. |
-| Sandbox and Explorer UI | Not verified | Live guest protections, the popup, and interactive menu selection remain to be checked. Computer-use access was unavailable. |
+| Sandbox guest | Not verified | Rendering in the guest, read-only mapping, no network, no clipboard, and disposal between sessions remain to be checked interactively. |
+| Context menu click | Not verified | Selecting the entries by right-clicking in File Explorer has not been checked by hand. |
 
 ## Demo and remaining interactive checks
 

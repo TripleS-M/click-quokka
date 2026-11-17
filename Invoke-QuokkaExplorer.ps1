@@ -23,7 +23,7 @@ try {
     $result = $LASTEXITCODE
     if ($null -eq $result) { $result = 1 }
 } catch {
-    $scanOutput = "Scan failed: $($_.Exception.Message)"
+    $scanOutput = "$(if ($Action -eq 'Scan') { 'Scan' } else { 'Isolation' }) failed: $($_.Exception.Message)"
     if ($Action -ne 'Scan') { Write-Host $scanOutput }
     $result = 1
 }
