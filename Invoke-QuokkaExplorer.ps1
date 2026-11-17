@@ -5,7 +5,9 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 try {
-    if ([IO.Path]::GetExtension($Path) -ine '.pdf') { throw 'The Explorer actions accept PDF files only.' }
+    $extension = [IO.Path]::GetExtension($Path)
+    if ($Action -eq 'Scan' -and $extension -notin @('.pdf', '.txt')) { throw 'Explorer scanning accepts PDF and TXT files only.' }
+    if ($Action -eq 'Isolation' -and $extension -ine '.pdf') { throw 'Isolated viewing accepts PDF files only.' }
     $settings = Get-ItemProperty -LiteralPath 'HKCU:\Software\ClickQuokka' -ErrorAction SilentlyContinue
     $powershell = Join-Path $PSHOME 'powershell.exe'
     if ($Action -eq 'Scan') {

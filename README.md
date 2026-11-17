@@ -51,7 +51,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Install-QuokkaExplorer.ps1
 
 An optional `-DatabasePath` sets a specific signature directory. Re-run the installer to update a configured path after moving a dependency or this project. The actions refer to scripts in this folder, so keep the folder in place. Omitting a setting preserves its existing value; scanning can be used without a viewer.
 
-Right-click one PDF in File Explorer, select **Show more options**, and choose **Scan with Click Quokka** or **Open in Click Quokka Isolation**. Each action is independent and leaves a console open for its result; press Enter to close it. Scanning never opens the PDF.
+Right-click one PDF or TXT file in File Explorer, select **Show more options**, and choose **Scan with Click Quokka**. PDFs also offer **Open in Click Quokka Isolation**. Each action is independent and leaves a console open for its result; press Enter to close it. Scanning never opens the file.
 
 To remove the two menu entries for your account:
 
@@ -59,7 +59,7 @@ To remove the two menu entries for your account:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\Uninstall-QuokkaExplorer.ps1
 ```
 
-Uninstall preserves the saved paths, database, and staged sessions. Neither script changes the default PDF association. Both support `-WhatIf`.
+Uninstall preserves the saved paths, database, and staged sessions. Neither script changes default file associations. Both support `-WhatIf`.
 
 ## Verification status
 

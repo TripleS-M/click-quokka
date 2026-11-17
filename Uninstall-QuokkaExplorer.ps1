@@ -2,9 +2,9 @@
 param()
 $ErrorActionPreference = 'Stop'
 try {
-    $base = 'HKCU:\Software\Classes\SystemFileAssociations\.pdf\shell'
-    foreach ($name in @('ClickQuokka.Scan', 'ClickQuokka.Isolation')) {
-        $key = Join-Path $base $name
+    $base = 'HKCU:\Software\Classes\SystemFileAssociations'
+    foreach ($verb in @(@('.pdf', 'ClickQuokka.Scan'), @('.pdf', 'ClickQuokka.Isolation'), @('.txt', 'ClickQuokka.Scan'))) {
+        $key = Join-Path (Join-Path $base ($verb[0] + '\shell')) $verb[1]
         if ((Test-Path -LiteralPath $key) -and $PSCmdlet.ShouldProcess($key, 'Remove Click Quokka action')) {
             Remove-Item -LiteralPath $key -Recurse -Force
         }
